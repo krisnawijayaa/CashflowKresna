@@ -663,6 +663,91 @@ tr:hover td{background:rgba(255,255,255,.02)}
   </div>
 </div>
 
+<!-- MODAL EDIT TRANSAKSI -->
+<div class="modal-overlay" id="edit-tx-modal">
+  <div class="modal">
+    <h2>✏️ Edit Transaksi</h2>
+    <div class="form-grid">
+      <div class="form-group"><label>Tanggal</label><input type="date" id="etx-date"/></div>
+      <div class="form-group">
+        <label>Nominal (Rp)</label>
+        <input type="text" inputmode="decimal" id="etx-amount" placeholder="17 → 17rb" oninput="el('etx-amount-preview').textContent=parseShorthand(this.value)>0?'= '+fmt(parseShorthand(this.value)):''"/>
+        <div id="etx-amount-preview" style="font-size:11px;color:var(--teal);margin-top:2px;min-height:16px"></div>
+      </div>
+      <div class="form-group"><label>Deskripsi</label><input type="text" id="etx-desc"/></div>
+      <div class="form-group"><label>Kategori</label>
+        <select id="etx-cat">
+          <option value="food">🍜 Food & Drink</option>
+          <option value="lifestyle">🛒 Lifestyle</option>
+          <option value="fixed">📱 Fixed Cost</option>
+          <option value="cc">💳 CC Payment</option>
+          <option value="income">💵 Income</option>
+          <option value="other">📦 Lainnya</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Sumber</label>
+        <select id="etx-src">
+          <option value="bni">🏦 BNI</option>
+          <option value="cash">💵 Cash</option>
+          <option value="cc">💳 Credit Card</option>
+          <option value="transfer">📲 Transfer</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Catatan</label><input type="text" id="etx-note"/></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-danger" onclick="closeEditTx()">Batal</button>
+      <button class="btn btn-primary" onclick="saveEditTx()">💾 Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDIT PIUTANG -->
+<div class="modal-overlay" id="edit-piutang-modal">
+  <div class="modal" style="width:420px">
+    <h2>✏️ Edit Piutang</h2>
+    <p style="font-size:13px;color:var(--text-dim);margin-bottom:16px" id="edit-piutang-desc"></p>
+    <div class="form-group" style="margin-bottom:14px">
+      <label>Nama</label>
+      <input type="text" id="ep-name" placeholder="Nama orang"/>
+    </div>
+    <div class="form-group" style="margin-bottom:4px">
+      <label>Nominal Utang (Rp)</label>
+      <input type="text" inputmode="decimal" id="ep-amount" placeholder="17 → 17rb" oninput="el('ep-amount-preview').textContent=parseShorthand(this.value)>0?'= '+fmt(parseShorthand(this.value)):''"/>
+      <div id="ep-amount-preview" style="font-size:11px;color:var(--teal);margin-top:2px;min-height:16px"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-danger" onclick="closeEditPiutang()">Batal</button>
+      <button class="btn btn-primary" onclick="saveEditPiutang()">💾 Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDIT MY DEBT -->
+<div class="modal-overlay" id="edit-mydebt-modal">
+  <div class="modal" style="width:420px">
+    <h2>✏️ Edit Utang Gua</h2>
+    <p style="font-size:13px;color:var(--text-dim);margin-bottom:16px" id="edit-mydebt-desc"></p>
+    <div class="form-group" style="margin-bottom:14px">
+      <label>Utang ke Siapa</label>
+      <input type="text" id="emd-name" placeholder="Nama orang"/>
+    </div>
+    <div class="form-group" style="margin-bottom:14px">
+      <label>Nominal (Rp)</label>
+      <input type="text" inputmode="decimal" id="emd-amount" placeholder="17 → 17rb" oninput="el('emd-amount-preview').textContent=parseShorthand(this.value)>0?'= '+fmt(parseShorthand(this.value)):''"/>
+      <div id="emd-amount-preview" style="font-size:11px;color:var(--orange);margin-top:2px;min-height:16px"></div>
+    </div>
+    <div class="form-group" style="margin-bottom:4px">
+      <label>Catatan</label>
+      <input type="text" id="emd-note" placeholder="Opsional"/>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-danger" onclick="closeEditMyDebt()">Batal</button>
+      <button class="btn btn-primary" onclick="saveEditMyDebt()">💾 Simpan</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -1030,7 +1115,10 @@ function renderTransaksi(){
       <td data-label="Sumber" style="color:var(--text-muted)">${t.src}</td>
       <td data-label="Nominal" style="text-align:right;font-variant-numeric:tabular-nums;font-weight:700">${fmt(t.amount)}</td>
       <td data-label="Bagian Gua" style="text-align:right;font-variant-numeric:tabular-nums;color:var(--teal);font-weight:700">${fmt(myShare)}</td>
-      <td><button class="del-btn" onclick="deleteTransaction(${t.id})">🗑</button></td>
+      <td style="white-space:nowrap">
+        <button class="del-btn" onclick="openEditTx(${t.id})" title="Edit" style="color:var(--blue)">✏️</button>
+        <button class="del-btn" onclick="deleteTransaction(${t.id})" title="Hapus">🗑</button>
+      </td>
     </tr>`;
   }).join('');
 }
@@ -1136,6 +1224,7 @@ function renderPiutang(){
               <button class="settle-btn ${e.settled?'settled':''}" onclick="openSettleModal('piutang',${e.txId},${e.personIdx},${e.settled})">
                 ${e.settled?'✓ Lunas':'Tandai Lunas'}
               </button>
+              <button class="del-btn" onclick="openEditPiutang(${e.txId},${e.personIdx})" title="Edit" style="color:var(--blue);font-size:12px;padding:2px 5px">✏️ Edit</button>
               ${e.settled&&e.settleMethod?`<span class="settle-method filled">via ${escHtml(e.settleMethod)}</span>`:''}
               ${e.settled&&e.settleNote?`<span class="settle-method filled">${escHtml(e.settleNote)}</span>`:''}
             </div>
@@ -1190,6 +1279,7 @@ function renderMyDebt(){
               <button class="settle-btn orange ${e.settled?'settled':''}" onclick="openSettleModal('mydebt',${e.txId},0,${e.settled})">
                 ${e.settled?'✓ Lunas':'Tandai Lunas'}
               </button>
+              <button class="del-btn" onclick="openEditMyDebt(${e.txId})" title="Edit" style="color:var(--orange);font-size:12px;padding:2px 5px">✏️ Edit</button>
               ${e.settled&&e.settleMethod?`<span class="settle-method filled">via ${escHtml(e.settleMethod)}</span>`:''}
               ${e.settled&&e.settleNote?`<span class="settle-method filled">${escHtml(e.settleNote)}</span>`:''}
             </div>
@@ -1387,6 +1477,110 @@ function confirmReset(){
   if(confirm('Reset semua data? Tidak bisa di-undo.')){ transactions=[]; save(); renderDashboard(); showToast('🗑️ Data direset'); }
 }
 
+// ─── EDIT TRANSAKSI ──────────────────────────────────────────────────────────
+let editTxId = null;
+function openEditTx(id){
+  const tx = transactions.find(t=>t.id===id);
+  if(!tx) return;
+  editTxId = id;
+  el('etx-date').value = tx.date;
+  el('etx-amount').value = tx.amount;
+  el('etx-amount-preview').textContent = '= ' + fmt(tx.amount);
+  el('etx-desc').value = tx.desc;
+  el('etx-cat').value = tx.cat;
+  el('etx-src').value = tx.src;
+  el('etx-note').value = tx.note || '';
+  el('edit-tx-modal').classList.add('open');
+}
+function closeEditTx(){ el('edit-tx-modal').classList.remove('open'); editTxId=null; }
+function saveEditTx(){
+  if(!editTxId) return;
+  const tx = transactions.find(t=>t.id===editTxId);
+  if(!tx) return;
+  const newAmount = parseShorthand(el('etx-amount').value);
+  const newDesc   = el('etx-desc').value.trim();
+  const newDate   = el('etx-date').value;
+  if(!newDate||!newAmount||!newDesc){ showToast('⚠️ Tanggal, nominal, deskripsi wajib!'); return; }
+
+  // Recalculate myShare: keep split amounts the same, just update total
+  const othersTotal = tx.split ? tx.split.reduce((s,p)=>s+p.amount,0) : 0;
+  tx.date    = newDate;
+  tx.amount  = newAmount;
+  tx.desc    = newDesc;
+  tx.cat     = el('etx-cat').value;
+  tx.src     = el('etx-src').value;
+  tx.note    = el('etx-note').value.trim();
+  tx.myShare = tx.split ? newAmount - othersTotal : newAmount;
+
+  save(); closeEditTx();
+  renderTransaksi(); renderDashboard();
+  showToast('✅ Transaksi diupdate!');
+}
+
+// ─── EDIT PIUTANG ────────────────────────────────────────────────────────────
+let editPiutangCtx = null; // {txId, personIdx}
+function openEditPiutang(txId, personIdx){
+  const tx = transactions.find(t=>t.id===txId);
+  if(!tx||!tx.split||!tx.split[personIdx]) return;
+  editPiutangCtx = {txId, personIdx};
+  const p = tx.split[personIdx];
+  el('edit-piutang-desc').textContent = `Transaksi: "${tx.desc}" · ${tx.date}`;
+  el('ep-name').value = p.name;
+  el('ep-amount').value = p.amount;
+  el('ep-amount-preview').textContent = '= ' + fmt(p.amount);
+  el('edit-piutang-modal').classList.add('open');
+}
+function closeEditPiutang(){ el('edit-piutang-modal').classList.remove('open'); editPiutangCtx=null; }
+function saveEditPiutang(){
+  if(!editPiutangCtx) return;
+  const tx = transactions.find(t=>t.id===editPiutangCtx.txId);
+  if(!tx) return;
+  const newName   = el('ep-name').value.trim();
+  const newAmount = parseShorthand(el('ep-amount').value);
+  if(!newName||!newAmount){ showToast('⚠️ Nama dan nominal wajib!'); return; }
+
+  tx.split[editPiutangCtx.personIdx].name   = newName;
+  tx.split[editPiutangCtx.personIdx].amount = newAmount;
+  // Recalc myShare
+  const othersTotal = tx.split.reduce((s,p)=>s+p.amount,0);
+  tx.myShare = tx.amount - othersTotal;
+
+  save(); closeEditPiutang();
+  renderUtang(); renderDashboard();
+  showToast('✅ Piutang diupdate!');
+}
+
+// ─── EDIT MY DEBT ────────────────────────────────────────────────────────────
+let editMyDebtTxId = null;
+function openEditMyDebt(txId){
+  const tx = transactions.find(t=>t.id===txId);
+  if(!tx||!tx.myDebt) return;
+  editMyDebtTxId = txId;
+  el('edit-mydebt-desc').textContent = `Transaksi: "${tx.desc}" · ${tx.date}`;
+  el('emd-name').value   = tx.myDebt.to;
+  el('emd-amount').value = tx.myDebt.amount;
+  el('emd-amount-preview').textContent = '= ' + fmt(tx.myDebt.amount);
+  el('emd-note').value   = tx.myDebt.note || '';
+  el('edit-mydebt-modal').classList.add('open');
+}
+function closeEditMyDebt(){ el('edit-mydebt-modal').classList.remove('open'); editMyDebtTxId=null; }
+function saveEditMyDebt(){
+  if(!editMyDebtTxId) return;
+  const tx = transactions.find(t=>t.id===editMyDebtTxId);
+  if(!tx||!tx.myDebt) return;
+  const newName   = el('emd-name').value.trim();
+  const newAmount = parseShorthand(el('emd-amount').value);
+  if(!newName||!newAmount){ showToast('⚠️ Nama dan nominal wajib!'); return; }
+
+  tx.myDebt.to     = newName;
+  tx.myDebt.amount = newAmount;
+  tx.myDebt.note   = el('emd-note').value.trim();
+
+  save(); closeEditMyDebt();
+  renderUtang(); renderDashboard();
+  showToast('✅ Utang diupdate!');
+}
+
 // ─── SHORTHAND AMOUNT PARSER ──────────────────────────────────────────────────
 // 17 → 17000 | 15.5 → 15500 | 150 → 150000 | 1.5jt → 1500000 | 17500 → 17500
 function parseShorthand(raw){
@@ -1452,6 +1646,11 @@ function escHtml(s){
 window.addEventListener('DOMContentLoaded', ()=>{
   const fd=el('f-date'); if(fd) fd.value=todayStr();
   const ud=el('ud-date'); if(ud) ud.value=todayStr();
+  // close modals on overlay click
+  ['edit-tx-modal','edit-piutang-modal','edit-mydebt-modal','settings-modal','settle-modal'].forEach(id=>{
+    const overlay=el(id);
+    if(overlay) overlay.addEventListener('click', e=>{ if(e.target===overlay) overlay.classList.remove('open'); });
+  });
   renderDashboard();
 });
 </script>
