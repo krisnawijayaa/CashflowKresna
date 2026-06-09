@@ -541,13 +541,15 @@ tr:hover td{background:rgba(255,255,255,.02)}
 <!-- TAMBAH UTANG GUA (standalone) -->
 <div class="page" id="page-tambahutang">
   <div class="topbar"><div><h1>🏧 Catat Utang Gua</h1><div class="date-label">Gua yang pinjam / utang ke orang</div></div></div>
-  <div class="card" style="max-width:560px">
-    <div class="form-grid">
-      <div class="form-group"><label>Tanggal</label><input type="date" id="ud-date"/></div>
-      <div class="form-group">
-        <label>Nominal Utang (Rp)</label>
-        <input type="text" inputmode="decimal" id="ud-amount" placeholder="17 → 17rb · 15.5 → 15.5rb" oninput="el('ud-amount-preview').textContent=parseShorthand(this.value)>0?'= '+fmt(parseShorthand(this.value)):''"/>
-        <div id="ud-amount-preview" style="font-size:11px;color:var(--orange);margin-top:2px;min-height:16px"></div>
+  <div class="card" style="max-width:480px">
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="form-grid-2">
+        <div class="form-group"><label>Tanggal</label><input type="date" id="ud-date"/></div>
+        <div class="form-group">
+          <label>Nominal Utang (Rp)</label>
+          <input type="text" inputmode="decimal" id="ud-amount" placeholder="17 → 17rb" oninput="el('ud-amount-preview').textContent=parseShorthand(this.value)>0?'= '+fmt(parseShorthand(this.value)):''"/>
+          <div id="ud-amount-preview" style="font-size:11px;color:var(--orange);margin-top:2px;min-height:16px"></div>
+        </div>
       </div>
       <div class="form-group"><label>Utang ke Siapa</label><input type="text" id="ud-name" placeholder="Nama teman / warung / dll"/></div>
       <div class="form-group"><label>Deskripsi (opsional)</label><input type="text" id="ud-desc" placeholder="e.g. pinjam buat bensin"/></div>
@@ -665,13 +667,13 @@ tr:hover td{background:rgba(255,255,255,.02)}
 
 <!-- MODAL EDIT TRANSAKSI -->
 <div class="modal-overlay" id="edit-tx-modal">
-  <div class="modal">
+  <div class="modal" style="width:620px">
     <h2>✏️ Edit Transaksi</h2>
-    <div class="form-grid">
+    <div class="form-grid" style="margin-bottom:14px">
       <div class="form-group"><label>Tanggal</label><input type="date" id="etx-date"/></div>
       <div class="form-group">
         <label>Nominal (Rp)</label>
-        <input type="text" inputmode="decimal" id="etx-amount" placeholder="17 → 17rb" oninput="el('etx-amount-preview').textContent=parseShorthand(this.value)>0?'= '+fmt(parseShorthand(this.value)):''"/>
+        <input type="text" inputmode="decimal" id="etx-amount" placeholder="17 → 17rb" oninput="el('etx-amount-preview').textContent=parseShorthand(this.value)>0?'= '+fmt(parseShorthand(this.value)):''; refreshEditSplitSummary()"/>
         <div id="etx-amount-preview" style="font-size:11px;color:var(--teal);margin-top:2px;min-height:16px"></div>
       </div>
       <div class="form-group"><label>Deskripsi</label><input type="text" id="etx-desc"/></div>
@@ -694,6 +696,33 @@ tr:hover td{background:rgba(255,255,255,.02)}
         </select>
       </div>
       <div class="form-group"><label>Catatan</label><input type="text" id="etx-note"/></div>
+    </div>
+    <!-- Split bill editor di dalam modal edit -->
+    <div id="etx-split-wrap" style="display:none">
+      <div style="height:1px;background:var(--border);margin:4px 0 14px"></div>
+      <div style="font-size:12px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">🤝 Edit Split Bill</div>
+      <div style="display:grid;grid-template-columns:1fr 130px auto;gap:8px;margin-bottom:6px">
+        <span style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">Nama</span>
+        <span style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">Nominal</span>
+        <span></span>
+      </div>
+      <div id="etx-split-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px"></div>
+      <button class="btn btn-teal btn-sm" onclick="addEditSplitPerson()" style="margin-bottom:12px">+ Tambah Orang</button>
+      <div id="etx-split-summary" style="background:var(--card2);border-radius:8px;padding:10px 14px;font-size:12px"></div>
+    </div>
+    <!-- My debt editor di dalam modal edit -->
+    <div id="etx-mydebt-wrap" style="display:none">
+      <div style="height:1px;background:var(--border);margin:4px 0 14px"></div>
+      <div style="font-size:12px;font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">🏧 Edit Utang Gua</div>
+      <div class="form-grid-2">
+        <div class="form-group"><label>Utang ke Siapa</label><input type="text" id="etx-md-name" placeholder="Nama orang"/></div>
+        <div class="form-group">
+          <label>Nominal Utang (Rp)</label>
+          <input type="text" inputmode="decimal" id="etx-md-amount" placeholder="17 → 17rb" oninput="el('etx-md-preview').textContent=parseShorthand(this.value)>0?'= '+fmt(parseShorthand(this.value)):''"/>
+          <div id="etx-md-preview" style="font-size:11px;color:var(--orange);margin-top:2px;min-height:16px"></div>
+        </div>
+      </div>
+      <div class="form-group" style="margin-top:4px"><label>Catatan Utang</label><input type="text" id="etx-md-note" placeholder="Opsional"/></div>
     </div>
     <div class="modal-actions">
       <button class="btn btn-danger" onclick="closeEditTx()">Batal</button>
@@ -1020,33 +1049,81 @@ function renderCatBars(monthTx, monthTotal){
   const now=new Date();
   safe('cat-month-label',now.toLocaleDateString('id-ID',{month:'long',year:'numeric'}));
   const catBarsEl=el('cat-bars');
-  if(catBarsEl) catBarsEl.innerHTML=Object.entries(cats).filter(([k,v])=>v>0).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`
+  const entries=Object.entries(cats).filter(([k,v])=>v>0).sort((a,b)=>b[1]-a[1]);
+  if(catBarsEl) catBarsEl.innerHTML=entries.length?entries.map(([k,v])=>`
     <div class="cat-bar-wrap">
-      <div class="cat-bar-label"><span class="name">${catNames[k]||k}</span><span class="val">${fmt(v)}</span></div>
+      <div class="cat-bar-label">
+        <span class="name">${catNames[k]||k}</span>
+        <span class="val">${fmt(v)} <span style="color:var(--text-muted);font-weight:400">(${monthTotal>0?Math.round(v/monthTotal*100):0}%)</span></span>
+      </div>
       <div class="cat-bar-track"><div class="cat-bar-fill" style="width:${(v/maxCat)*100}%;background:${catColors[k]||'var(--blue)'}"></div></div>
-    </div>`).join('')||'<div style="color:var(--text-muted);font-size:13px">Belum ada data bulan ini</div>';
+    </div>`).join(''):'<div style="color:var(--text-muted);font-size:13px">Belum ada data bulan ini</div>';
+  // Always re-render pie chart fresh
   renderPieChart(cats,catNames,catColors);
 }
 
 function renderInsights(monthTx, monthTotal, income, piutangAmt, myDebtAmt){
   const items=[];
   const now=new Date();
-  if(!monthTx.length){ items.push({dot:'dot-blue',text:'Belum ada data transaksi. Mulai tambahkan pengeluaran!'}); }
+  const daysElapsed=now.getDate();
+  const daysInMonth=new Date(now.getFullYear(),now.getMonth()+1,0).getDate();
+  const daysLeft=daysInMonth-daysElapsed;
+
+  if(!monthTx.length){ items.push({dot:'dot-blue',text:'Belum ada data transaksi bulan ini. Yuk mulai catat!'}); }
   else {
-    const daysLeft=new Date(now.getFullYear(),now.getMonth()+1,0).getDate()-now.getDate();
-    const avgDaily=monthTotal/now.getDate();
-    const projected=avgDaily*new Date(now.getFullYear(),now.getMonth()+1,0).getDate();
+    const avgDaily=daysElapsed>0?monthTotal/daysElapsed:0;
+    const projected=avgDaily*daysInMonth;
+
+    // Income analysis
     if(income>0){
-      const pct=((income-monthTotal)/income)*100;
-      if(pct>30) items.push({dot:'dot-green',text:`🎉 Hemat ${Math.round(pct)}% dari income bulan ini!`});
-      else if(pct<0) items.push({dot:'dot-red',text:`⚠️ Pengeluaran melebihi income ${fmt(-pct/100*income)}.`});
-      else items.push({dot:'dot-amber',text:`📊 Sudah pakai ${Math.round(100-pct)}% income. ${daysLeft} hari lagi.`});
+      const remaining=income-monthTotal;
+      const pct=Math.round((monthTotal/income)*100);
+      if(remaining<0) items.push({dot:'dot-red',text:`⚠️ Pengeluaran sudah <b>melebihi income</b> ${fmt(-remaining)} (${pct}% dari income). Perlu dikurangi!`});
+      else if(pct>80) items.push({dot:'dot-amber',text:`🔴 Sudah pakai <b>${pct}%</b> income. Sisa ${fmt(remaining)} untuk ${daysLeft} hari — rata-rata ${fmt(remaining/Math.max(daysLeft,1))}/hari.`});
+      else if(pct>50) items.push({dot:'dot-amber',text:`📊 Sudah pakai <b>${pct}%</b> income bulan ini. Masih aman, sisa ${fmt(remaining)}.`});
+      else items.push({dot:'dot-green',text:`✅ Bagus! Baru pakai <b>${pct}%</b> income. Sisa ${fmt(remaining)} untuk ${daysLeft} hari lagi.`});
     }
-    const foodTotal=monthTx.filter(t=>t.cat==='food').reduce((s,t)=>s+t.amount,0);
-    if(foodTotal>0){ const fp=Math.round((foodTotal/monthTotal)*100); items.push({dot:fp>50?'dot-amber':'dot-blue',text:`🍜 Food ${fp}% dari pengeluaran (${fmt(foodTotal)}).`}); }
-    if(piutangAmt>0) items.push({dot:'dot-teal',text:`🤝 ${fmt(piutangAmt)} piutang dari teman belum dibayar.`});
-    if(myDebtAmt>0) items.push({dot:'dot-orange',text:`🏧 Gua masih punya utang ${fmt(myDebtAmt)} yang belum lunas.`});
-    if(income>0) items.push({dot:projected>income?'dot-red':'dot-green',text:`📈 Proyeksi akhir bulan: ${fmt(projected)}.`});
+
+    // Projected spending
+    if(income>0 && daysElapsed>3){
+      const projSaving=income-projected;
+      items.push({dot:projected>income?'dot-red':'dot-green',text:`📈 Proyeksi pengeluaran akhir bulan: <b>${fmt(Math.round(projected))}</b>. Estimasi tabungan: <b>${fmt(Math.max(0,projSaving))}</b>.`});
+    }
+
+    // Avg daily vs benchmark
+    if(daysElapsed>0){
+      const dailyBudget=income>0?income/daysInMonth:0;
+      if(dailyBudget>0){
+        const over=avgDaily-dailyBudget;
+        if(over>0) items.push({dot:'dot-amber',text:`💸 Rata-rata harian <b>${fmt(avgDaily)}</b> — lebih ${fmt(over)} dari budget harian (${fmt(dailyBudget)}).`});
+        else items.push({dot:'dot-blue',text:`📅 Rata-rata harian <b>${fmt(avgDaily)}</b> — masih di bawah budget harian (${fmt(dailyBudget)}).`});
+      } else {
+        items.push({dot:'dot-blue',text:`📅 Rata-rata pengeluaran harian: <b>${fmt(avgDaily)}</b>.`});
+      }
+    }
+
+    // Top category
+    const cats={};
+    monthTx.forEach(t=>{ cats[t.cat]=(cats[t.cat]||0)+t.amount; });
+    const topCat=Object.entries(cats).sort((a,b)=>b[1]-a[1])[0];
+    if(topCat){
+      const catNames={food:'Food & Drink',lifestyle:'Lifestyle',fixed:'Fixed Cost',cc:'Credit Card',other:'Lainnya'};
+      const pct=Math.round((topCat[1]/monthTotal)*100);
+      items.push({dot:pct>50?'dot-amber':'dot-blue',text:`🏆 Pengeluaran terbesar: <b>${catNames[topCat[0]]||topCat[0]}</b> ${fmt(topCat[1])} (${pct}% dari total).`});
+    }
+
+    // Weekend vs weekday
+    const weekendTx=monthTx.filter(t=>{ const d=new Date(t.date); return d.getDay()===0||d.getDay()===6; });
+    const weekdayTx=monthTx.filter(t=>{ const d=new Date(t.date); return d.getDay()>0&&d.getDay()<6; });
+    if(weekendTx.length>0&&weekdayTx.length>0){
+      const wkndAvg=weekendTx.reduce((s,t)=>s+t.amount,0)/weekendTx.length;
+      const wkdayAvg=weekdayTx.reduce((s,t)=>s+t.amount,0)/weekdayTx.length;
+      if(wkndAvg>wkdayAvg*1.5) items.push({dot:'dot-amber',text:`🎉 Pengeluaran weekend rata-rata <b>${fmt(wkndAvg)}</b>/tx — ${Math.round(wkndAvg/wkdayAvg*100-100)}% lebih tinggi dari weekday.`});
+    }
+
+    // Piutang & utang gua
+    if(piutangAmt>0) items.push({dot:'dot-teal',text:`🤝 Piutang belum dibayar: <b>${fmt(piutangAmt)}</b>. Jangan lupa nagih!`});
+    if(myDebtAmt>0) items.push({dot:'dot-orange',text:`🏧 Utang gua yang belum lunas: <b>${fmt(myDebtAmt)}</b>. Jangan lupa bayar!`});
   }
   const il=el('insight-list');
   if(il) il.innerHTML=items.map(i=>`<div class="insight-item"><span class="dot ${i.dot}"></span><span>${i.text}</span></div>`).join('');
@@ -1083,11 +1160,25 @@ function renderTrendChart(){
 
 function renderPieChart(cats,catNames,catColors){
   const canvas=el('pieChart'); if(!canvas) return;
-  const ctx=canvas.getContext('2d');
+  if(pieChart){ pieChart.destroy(); pieChart=null; }
   const entries=Object.entries(cats).filter(([k,v])=>v>0);
-  if(pieChart) pieChart.destroy();
-  if(!entries.length) return;
-  pieChart=new Chart(ctx,{type:'doughnut',data:{labels:entries.map(([k])=>catNames[k]),datasets:[{data:entries.map(([,v])=>v),backgroundColor:entries.map(([k])=>catColors[k]||'#64748B'),borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#94A3B8',font:{size:11},boxWidth:12,padding:12}},tooltip:{callbacks:{label:c=>c.label+': '+fmt(c.raw)}}},cutout:'65%'}});
+  if(!entries.length){ canvas.getContext('2d').clearRect(0,0,canvas.width,canvas.height); return; }
+  const ctx=canvas.getContext('2d');
+  pieChart=new Chart(ctx,{
+    type:'doughnut',
+    data:{
+      labels:entries.map(([k])=>catNames[k]),
+      datasets:[{data:entries.map(([,v])=>v),backgroundColor:entries.map(([k])=>catColors[k]||'#64748B'),borderWidth:2,borderColor:'#131E35',hoverBorderColor:'#1A2540'}]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,animation:{duration:600},
+      plugins:{
+        legend:{position:'bottom',labels:{color:'#94A3B8',font:{size:11},boxWidth:12,padding:12}},
+        tooltip:{callbacks:{label:c=>' '+c.label+': '+fmt(c.raw)+' ('+Math.round(c.parsed/entries.reduce((s,[,v])=>s+v,0)*100)+'%)'}}
+      },
+      cutout:'62%'
+    }
+  });
 }
 
 // ─── RENDER TRANSAKSI ────────────────────────────────────────────────────────
@@ -1392,12 +1483,14 @@ function importFromXLSX(buf){
 function mapColumns(headers){
   const find=(...keys)=>{ for(const k of keys){ const i=headers.findIndex(h=>h.includes(k)); if(i>=0) return i; } return -1; };
   return {
-    date: find('tanggal','date'),
-    desc: find('deskripsi','desc','keterangan','nama'),
-    cat:  find('kategori','cat','category'),
-    src:  find('sumber','src','source','metode'),
-    amount: find('nominal','amount','jumlah','total'),
-    note: find('catatan','note','keterangan')
+    date:    find('tanggal','date'),
+    desc:    find('deskripsi','desc','keterangan'),
+    cat:     find('kategori','cat','category'),
+    src:     find('sumber','src','source','metode'),
+    amount:  find('nominal','amount','jumlah','total'),
+    note:    find('catatan','note'),
+    piutang: find('piutang','split','hutang teman'),
+    mydebt:  find('utanggua','utang gua','mydebt','hutang gua')
   };
 }
 
@@ -1425,7 +1518,31 @@ function finishImport(rows, colMap){
     const validSrc=['bni','cash','cc','transfer'];
     const src=validSrc.includes(srcRaw)?srcRaw:'bni';
     existing.add(key);
-    transactions.push({id:Date.now()+Math.random(),date:dateStr,amount:amountRaw,desc:descRaw,cat,src,note:noteRaw,myShare:amountRaw,split:null,myDebt:null});
+    // Parse piutang column e.g. "Sobri:15000; Ricky:20000"
+    let splitArr=null, myDebtObj=null;
+    const piutangRaw=colMap.piutang>=0?String(row[colMap.piutang]||'').trim():'';
+    if(piutangRaw){
+      splitArr=[];
+      piutangRaw.split(';').forEach(chunk=>{
+        chunk=chunk.trim().replace(/\(lunas.*?\)/i,'');
+        const m=chunk.match(/^(.+):([\d.,]+)/);
+        if(m){
+          const amt=parseFloat(m[2].replace(/[.,]/g,''))||parseFloat(m[2])||0;
+          if(m[1].trim()&&amt>0) splitArr.push({name:m[1].trim(),amount:amt,settled:piutangRaw.toLowerCase().includes('lunas'),settleMethod:'',settleNote:'',settleDate:''});
+        }
+      });
+      if(!splitArr.length) splitArr=null;
+    }
+    const myDebtRaw=colMap.mydebt>=0?String(row[colMap.mydebt]||'').trim():'';
+    if(myDebtRaw){
+      const m=myDebtRaw.match(/^(.+):([\d.,]+)/);
+      if(m){
+        const amt=parseFloat(m[2].replace(/[.,]/g,''))||parseFloat(m[2])||0;
+        if(m[1].trim()&&amt>0) myDebtObj={to:m[1].trim(),amount:amt,note:'',settled:myDebtRaw.toLowerCase().includes('lunas'),settleMethod:'',settleNote:'',settleDate:''};
+      }
+    }
+    const splitOthers=splitArr?splitArr.reduce((s,p)=>s+p.amount,0):0;
+    transactions.push({id:Date.now()+Math.random(),date:dateStr,amount:amountRaw,desc:descRaw,cat,src,note:noteRaw,myShare:splitArr?amountRaw-splitOthers:amountRaw,split:splitArr,myDebt:myDebtObj});
     added++;
   });
   transactions.sort((a,b)=>b.date.localeCompare(a.date));
@@ -1479,6 +1596,7 @@ function confirmReset(){
 
 // ─── EDIT TRANSAKSI ──────────────────────────────────────────────────────────
 let editTxId = null;
+let editSplitPeople = []; // for edit modal
 function openEditTx(id){
   const tx = transactions.find(t=>t.id===id);
   if(!tx) return;
@@ -1490,7 +1608,58 @@ function openEditTx(id){
   el('etx-cat').value = tx.cat;
   el('etx-src').value = tx.src;
   el('etx-note').value = tx.note || '';
+
+  // Populate split section
+  const splitWrap = el('etx-split-wrap');
+  if(tx.split && tx.split.length>0){
+    splitWrap.style.display='block';
+    editSplitPeople = tx.split.map(p=>({name:p.name, amount:p.amount, rawInput:String(p.amount), settled:p.settled, settleMethod:p.settleMethod||'', settleNote:p.settleNote||'', settleDate:p.settleDate||''}));
+  } else {
+    splitWrap.style.display='none';
+    editSplitPeople = [];
+  }
+  renderEditSplitList();
+  refreshEditSplitSummary();
+
+  // Populate mydebt section
+  const mydebtWrap = el('etx-mydebt-wrap');
+  if(tx.myDebt){
+    mydebtWrap.style.display='block';
+    el('etx-md-name').value = tx.myDebt.to;
+    el('etx-md-amount').value = tx.myDebt.amount;
+    el('etx-md-preview').textContent = '= ' + fmt(tx.myDebt.amount);
+    el('etx-md-note').value = tx.myDebt.note||'';
+  } else {
+    mydebtWrap.style.display='none';
+  }
+
   el('edit-tx-modal').classList.add('open');
+}
+
+function renderEditSplitList(){
+  const list = el('etx-split-list'); if(!list) return;
+  list.innerHTML = editSplitPeople.map((p,i)=>`
+    <div style="display:grid;grid-template-columns:1fr 130px auto;gap:8px;align-items:center">
+      <input type="text" placeholder="Nama" value="${escHtml(p.name)}" style="background:var(--card);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:8px 10px;font-size:13px;font-family:inherit;outline:none"
+        oninput="editSplitPeople[${i}].name=this.value"/>
+      <input type="text" inputmode="decimal" placeholder="nominal" value="${escHtml(p.rawInput||String(p.amount))}" style="background:var(--card);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:8px 10px;font-size:13px;font-family:inherit;outline:none;font-variant-numeric:tabular-nums"
+        oninput="editSplitPeople[${i}].rawInput=this.value;editSplitPeople[${i}].amount=parseShorthand(this.value);refreshEditSplitSummary()"/>
+      <button style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:15px;padding:4px 6px;border-radius:4px" onclick="editSplitPeople.splice(${i},1);renderEditSplitList();refreshEditSplitSummary()">✕</button>
+    </div>`).join('');
+}
+function addEditSplitPerson(){
+  editSplitPeople.push({name:'',amount:0,rawInput:'',settled:false,settleMethod:'',settleNote:'',settleDate:''});
+  renderEditSplitList(); refreshEditSplitSummary();
+}
+function refreshEditSplitSummary(){
+  const sumEl = el('etx-split-summary'); if(!sumEl) return;
+  const total = parseShorthand(el('etx-amount').value)||0;
+  const others = editSplitPeople.reduce((s,p)=>s+(p.amount||0),0);
+  const mine = total - others;
+  let html = `<div style="display:flex;justify-content:space-between;padding:3px 0"><span style="color:var(--text-dim)">💰 Bagian gua</span><span style="font-weight:700;color:${mine<0?'var(--red)':'var(--green)'}">${fmt(Math.max(0,mine))}</span></div>`;
+  editSplitPeople.forEach(p=>{ if(p.name||p.amount) html+=`<div style="display:flex;justify-content:space-between;padding:3px 0"><span style="color:var(--text-dim)">👤 ${escHtml(p.name||'?')}</span><span style="font-weight:700">${fmt(p.amount)}</span></div>`; });
+  html+=`<div style="height:1px;background:var(--border);margin:6px 0"></div><div style="display:flex;justify-content:space-between"><span style="font-weight:700">Total</span><span style="font-weight:700">${fmt(total)}</span></div>`;
+  sumEl.innerHTML=html;
 }
 function closeEditTx(){ el('edit-tx-modal').classList.remove('open'); editTxId=null; }
 function saveEditTx(){
@@ -1502,15 +1671,33 @@ function saveEditTx(){
   const newDate   = el('etx-date').value;
   if(!newDate||!newAmount||!newDesc){ showToast('⚠️ Tanggal, nominal, deskripsi wajib!'); return; }
 
-  // Recalculate myShare: keep split amounts the same, just update total
-  const othersTotal = tx.split ? tx.split.reduce((s,p)=>s+p.amount,0) : 0;
-  tx.date    = newDate;
-  tx.amount  = newAmount;
-  tx.desc    = newDesc;
-  tx.cat     = el('etx-cat').value;
-  tx.src     = el('etx-src').value;
-  tx.note    = el('etx-note').value.trim();
-  tx.myShare = tx.split ? newAmount - othersTotal : newAmount;
+  tx.date  = newDate;
+  tx.amount= newAmount;
+  tx.desc  = newDesc;
+  tx.cat   = el('etx-cat').value;
+  tx.src   = el('etx-src').value;
+  tx.note  = el('etx-note').value.trim();
+
+  // Save split edits if section visible
+  const splitWrap = el('etx-split-wrap');
+  if(splitWrap.style.display!=='none' && editSplitPeople.length>0){
+    const valid = editSplitPeople.filter(p=>p.name&&p.amount>0);
+    tx.split = valid.map(p=>({name:p.name,amount:p.amount,settled:p.settled||false,settleMethod:p.settleMethod||'',settleNote:p.settleNote||'',settleDate:p.settleDate||''}));
+    const othersTotal = tx.split.reduce((s,p)=>s+p.amount,0);
+    tx.myShare = newAmount - othersTotal;
+  } else if(!tx.split) {
+    tx.myShare = newAmount;
+  }
+
+  // Save mydebt edits if section visible
+  const mydebtWrap = el('etx-mydebt-wrap');
+  if(mydebtWrap.style.display!=='none'){
+    const mdName = el('etx-md-name').value.trim();
+    const mdAmt  = parseShorthand(el('etx-md-amount').value);
+    if(mdName && mdAmt>0){
+      tx.myDebt = Object.assign(tx.myDebt||{settled:false,settleMethod:'',settleNote:'',settleDate:''}, {to:mdName, amount:mdAmt, note:el('etx-md-note').value.trim()});
+    }
+  }
 
   save(); closeEditTx();
   renderTransaksi(); renderDashboard();
